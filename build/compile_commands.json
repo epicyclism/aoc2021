@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/paul/aoc2021/build/aoc0",
+  "command": "/usr/bin/clang++  -I/Users/paul/aoc2021/build/_deps/ctre-src/include -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk -std=gnu++2a -o CMakeFiles/aoc0.dir/aoc0.cpp.o -c /Users/paul/aoc2021/aoc0/aoc0.cpp",
+  "file": "/Users/paul/aoc2021/aoc0/aoc0.cpp"
+}
+]

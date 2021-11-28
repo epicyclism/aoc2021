@@ -1,24 +1,31 @@
 #include <iostream>
+#include <string>
+#include <string_view>
 #include <vector>
-#include <list>
+#include <array>
 #include <iterator>
+#include <list>
+#include <experimental/memory_resource>
 #include <algorithm>
+#include <charconv>
 
-#if 1
-constexpr int players = 452;
-constexpr int marbles = 71250;
-#else
-constexpr int players = 9;
-constexpr int marbles = 25 ;
-#endif
+#include <ctre.hpp>
 
-template<typename I> I mymod(I n, I sz)
+template<typename T> T sv_to_t ( std::string_view sv)
 {
-	while (n >= sz)
-		n -= sz;
-	while (n < 0)
-		n += sz;
-	return n;
+	T t { 0 };
+	std::from_chars(sv.data(), sv.data() + sv.size(), t);
+	return t;
+}
+
+std::pair<int64_t, int64_t> get_input()
+{
+	std::string ln;
+	std::getline(std::cin, ln);
+	constexpr auto rx_input = ctll::fixed_string{ R"((\d+) players; last marble is worth (\d+) points)" };
+	if(auto[m, ps, ms] =  ctre::match<rx_input>(ln); m)
+		return { sv_to_t<int64_t>(ps.to_view()), sv_to_t<int64_t>(ms.to_view())};
+	return {0, 0};
 }
 
 template<typename I, typename C> I move(C& c, I i, int64_t n)
@@ -46,7 +53,7 @@ template<typename I, typename C> I move(C& c, I i, int64_t n)
 	return i;
 }
 
-void pt1(int64_t np, int64_t nm)
+int64_t play(int64_t np, int64_t nm)
 {
 	std::vector<uint64_t> pl;
 	pl.resize(np);
@@ -55,55 +62,75 @@ void pt1(int64_t np, int64_t nm)
 	auto cm = std::begin(cir);
 	int64_t cp = 0;
 
-	for (int m = 1; m < nm; ++m)
+	for (int m = 1; m <= nm; ++m)
 	{
 		// winner?
 		if (m % 23 == 0)
 		{
 			pl[cp] += m;
 			cm = move(cir, cm, -7);
-//			cm = mymod( cm, static_cast<int64_t>(cir.size()));
 			pl[cp] += *cm;
 			cm = cir.erase(cm);
-//			cm = mymod( cm, static_cast<int64_t>(cir.size()));
 		}
 		else
 		{
 			cm = move(cir, cm, 2);
-//			cm = mymod( cm, static_cast<int64_t>(cir.size()));
 			cm = cir.insert(cm, m);
 		}
-		// report
-#if 0
-		std::cout << "[" << cp+1 << "] ";
-		auto cmv = *cm;
-		for (auto v : cir)
-		{
-			if (v == cmv)
-				std::cout << " [" << v << "] ";
-			else
-				std::cout << "  " << v << "  ";
-		}
-		std::cout << "\n";
-#endif
 		++cp;
 		if (cp == np)
 			cp = 0;
 	}
-	std::cout << "High score for " << np << " players and " << nm << " marbles = " << *std::max_element(std::begin(pl), std::end(pl)) << "\n";
+	return *std::max_element(std::begin(pl), std::end(pl)) ;
 }
+#if 0
+int64_t play2(int64_t np, int64_t nm)
+{
+	std::vector<uint64_t> pl(np);
+	std::vector<std::byte> buf(nm * 32);
+	std::experimental::pmr::monotonic_buffer_resource mbr{buf.data(), buf.size()};
+    std::experimental::pmr::polymorphic_allocator<uint64_t> pa{&mbr};
+    std::experimental::pmr::list<uint64_t> cir{pa};
+	cir.push_back(0);
+	auto cm = std::begin(cir);
+	int64_t cp = 0;
 
+	for (int m = 1; m <= nm; ++m)
+	{
+		// winner?
+		if (m % 23 == 0)
+		{
+			pl[cp] += m;
+			cm = move(cir, cm, -7);
+			pl[cp] += *cm;
+			cm = cir.erase(cm);
+		}
+		else
+		{
+			cm = move(cir, cm, 2);
+			cm = cir.insert(cm, m);
+		}
+		++cp;
+		if (cp == np)
+			cp = 0;
+	}
+	return *std::max_element(std::begin(pl), std::end(pl)) ;
+}
+#endif
 int main()
 {
-	pt1( 9,   25 + 1);
-#if 1
-	pt1(10, 1618 + 1);
-	pt1(13, 7999 + 1);
-	pt1(17, 1104 + 1);
-	pt1(21, 6111 + 1);
-	pt1(30, 5807 + 1);
-	pt1(players, marbles + 1);
-	pt1(players, marbles * 100 + 1);
+#if defined (TEST)
+	constexpr std::pair<int64_t,int64_t> tests [] = { { 9, 25}, {10, 1618}, {13, 7999}, {17, 1104}, {21, 6111}, {30, 5807}};
+	for(auto const& pm : tests)
+		std::cout << pm.first << ", " << pm.second << " = " << play(pm.first, pm.second) << "\n";
+#else
+	auto[players, marbles] = get_input();
+	std::cout << "p1 = " << play(players, marbles) << "\n";
+	std::cout << "p2 = " << play(players, marbles * 100) << "\n";
+#if 0
+	std::cout << "p1 = " << play2(players, marbles) << "\n";
+	std::cout << "p2 = " << play2(players, marbles * 100) << "\n";
+#endif
 #endif
 }
  

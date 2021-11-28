@@ -1,0 +1,87 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"build/_deps/ctre-src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 56,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 59,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 64,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "share/cmake/ctre",
+			"exportName" : "ctre-targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "ctre::@e7f9a98c21df4cc08dd4",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"_deps/ctre-build/CMakeFiles/Export/share/cmake/ctre/ctre-targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "share/cmake/ctre",
+			"paths" : 
+			[
+				"build/_deps/ctre-build/ctre-config-version.cmake",
+				"build/_deps/ctre-build/ctre-config.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				{
+					"from" : "build/_deps/ctre-src/include",
+					"to" : "."
+				}
+			],
+			"type" : "directory"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/ctre-build",
+		"source" : "build/_deps/ctre-src"
+	}
+}
