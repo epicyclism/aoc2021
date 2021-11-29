@@ -5,7 +5,7 @@
 #include <array>
 #include <iterator>
 #include <list>
-#include <experimental/memory_resource>
+#include <memory_resource>
 #include <algorithm>
 #include <charconv>
 
@@ -83,14 +83,14 @@ int64_t play(int64_t np, int64_t nm)
 	}
 	return *std::max_element(std::begin(pl), std::end(pl)) ;
 }
-#if 0
+
 int64_t play2(int64_t np, int64_t nm)
 {
 	std::vector<uint64_t> pl(np);
 	std::vector<std::byte> buf(nm * 32);
-	std::experimental::pmr::monotonic_buffer_resource mbr{buf.data(), buf.size()};
-    std::experimental::pmr::polymorphic_allocator<uint64_t> pa{&mbr};
-    std::experimental::pmr::list<uint64_t> cir{pa};
+	std::pmr::monotonic_buffer_resource mbr{buf.data(), buf.size()};
+        std::pmr::polymorphic_allocator<uint64_t> pa{&mbr};
+        std::pmr::list<uint64_t> cir{pa};
 	cir.push_back(0);
 	auto cm = std::begin(cir);
 	int64_t cp = 0;
@@ -116,7 +116,7 @@ int64_t play2(int64_t np, int64_t nm)
 	}
 	return *std::max_element(std::begin(pl), std::end(pl)) ;
 }
-#endif
+
 int main()
 {
 #if defined (TEST)
@@ -125,9 +125,10 @@ int main()
 		std::cout << pm.first << ", " << pm.second << " = " << play(pm.first, pm.second) << "\n";
 #else
 	auto[players, marbles] = get_input();
+#if 0
 	std::cout << "p1 = " << play(players, marbles) << "\n";
 	std::cout << "p2 = " << play(players, marbles * 100) << "\n";
-#if 0
+#else
 	std::cout << "p1 = " << play2(players, marbles) << "\n";
 	std::cout << "p2 = " << play2(players, marbles * 100) << "\n";
 #endif
