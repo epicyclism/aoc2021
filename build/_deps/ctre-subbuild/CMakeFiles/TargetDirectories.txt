@@ -1,3 +1,0 @@
-/Users/paul/aoc2021/build/_deps/ctre-subbuild/CMakeFiles/ctre-populate.dir
-/Users/paul/aoc2021/build/_deps/ctre-subbuild/CMakeFiles/edit_cache.dir
-/Users/paul/aoc2021/build/_deps/ctre-subbuild/CMakeFiles/rebuild_cache.dir

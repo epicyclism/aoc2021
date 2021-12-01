@@ -1,3 +1,0 @@
-repository='https://github.com/hanickadot/compile-time-regular-expressions'
-module=''
-tag='origin'
