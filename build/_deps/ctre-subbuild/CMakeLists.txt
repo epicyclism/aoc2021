@@ -1,7 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-cmake_minimum_required(VERSION 3.19.4)
+cmake_minimum_required(VERSION 3.22.0)
 
 # We name the project and the target for the ExternalProject_Add() call
 # to something that will highlight to the user what we are working on if
@@ -9,11 +9,21 @@ cmake_minimum_required(VERSION 3.19.4)
 
 project(ctre-populate NONE)
 
+
+# Pass through things we've already detected in the main project to avoid
+# paying the cost of redetecting them again in ExternalProject_Add()
+set(GIT_EXECUTABLE [==[/usr/bin/git]==])
+set(GIT_VERSION_STRING [==[2.30.1 (Apple Git-130)]==])
+set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
+  [==[/usr/bin/git;2.30.1 (Apple Git-130)]==]
+)
+
+
 include(ExternalProject)
 ExternalProject_Add(ctre-populate
                      "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/hanickadot/compile-time-regular-expressions" "GIT_TAG" "origin/main"
-                    SOURCE_DIR          "/home/paul/src/aoc2021/build/_deps/ctre-src"
-                    BINARY_DIR          "/home/paul/src/aoc2021/build/_deps/ctre-build"
+                    SOURCE_DIR          "/Users/paul/aoc2021/build/_deps/ctre-src"
+                    BINARY_DIR          "/Users/paul/aoc2021/build/_deps/ctre-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

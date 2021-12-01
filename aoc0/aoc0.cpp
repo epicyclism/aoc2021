@@ -5,7 +5,9 @@
 #include <array>
 #include <iterator>
 #include <list>
+#if 0
 #include <memory_resource>
+#endif
 #include <algorithm>
 #include <charconv>
 
@@ -83,7 +85,7 @@ int64_t play(int64_t np, int64_t nm)
 	}
 	return *std::max_element(std::begin(pl), std::end(pl)) ;
 }
-
+#if 0
 int64_t play2(int64_t np, int64_t nm)
 {
 	std::vector<uint64_t> pl(np);
@@ -116,6 +118,7 @@ int64_t play2(int64_t np, int64_t nm)
 	}
 	return *std::max_element(std::begin(pl), std::end(pl)) ;
 }
+#endif
 
 int main()
 {
@@ -125,7 +128,7 @@ int main()
 		std::cout << pm.first << ", " << pm.second << " = " << play(pm.first, pm.second) << "\n";
 #else
 	auto[players, marbles] = get_input();
-#if 0
+#if 1
 	std::cout << "p1 = " << play(players, marbles) << "\n";
 	std::cout << "p2 = " << play(players, marbles * 100) << "\n";
 #else

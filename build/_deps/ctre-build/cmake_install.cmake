@@ -1,4 +1,4 @@
-# Install script for directory: /home/paul/src/aoc2021/build/_deps/ctre-src
+# Install script for directory: /Users/paul/aoc2021/build/_deps/ctre-src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "Release")
+    set(CMAKE_INSTALL_CONFIG_NAME "Debug")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -25,11 +25,6 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   else()
     set(CMAKE_INSTALL_COMPONENT)
   endif()
-endif()
-
-# Install shared libraries without execute permission?
-if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
 # Is this installation the result of a crosscompile?
@@ -46,7 +41,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/ctre/ctre-targets.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/ctre/ctre-targets.cmake"
-         "/home/paul/src/aoc2021/build/_deps/ctre-build/CMakeFiles/Export/share/cmake/ctre/ctre-targets.cmake")
+         "/Users/paul/aoc2021/build/_deps/ctre-build/CMakeFiles/Export/share/cmake/ctre/ctre-targets.cmake")
     if(EXPORT_FILE_CHANGED)
       file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/share/cmake/ctre/ctre-targets-*.cmake")
       if(OLD_CONFIG_FILES)
@@ -55,17 +50,17 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/ctre" TYPE FILE FILES "/home/paul/src/aoc2021/build/_deps/ctre-build/CMakeFiles/Export/share/cmake/ctre/ctre-targets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/ctre" TYPE FILE FILES "/Users/paul/aoc2021/build/_deps/ctre-build/CMakeFiles/Export/share/cmake/ctre/ctre-targets.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/ctre" TYPE FILE FILES
-    "/home/paul/src/aoc2021/build/_deps/ctre-build/ctre-config-version.cmake"
-    "/home/paul/src/aoc2021/build/_deps/ctre-build/ctre-config.cmake"
+    "/Users/paul/aoc2021/build/_deps/ctre-build/ctre-config-version.cmake"
+    "/Users/paul/aoc2021/build/_deps/ctre-build/ctre-config.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/paul/src/aoc2021/build/_deps/ctre-src/include/" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/Users/paul/aoc2021/build/_deps/ctre-src/include/" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
 endif()
 
