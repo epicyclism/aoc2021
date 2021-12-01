@@ -14,12 +14,12 @@ auto get_input()
 
 int pt1(auto v)
 {
-    return std::inner_product(v.begin(), v.end() - 1, v.begin() + 1, 0, std::plus<>(), [](auto l, auto r){ return r > l;});
+    return std::inner_product(v.begin(), v.end() - 1, v.begin() + 1, 0, std::plus<>(), std::less<>());
 }
 
 int pt2(auto v)
 {
-    return std::inner_product(v.begin(), v.end() - 3, v.begin() + 3, 0, std::plus<>(), [](auto l, auto r){ return r > l;});
+    return std::inner_product(v.begin(), v.end() - 3, v.begin() + 3, 0, std::plus<>(), std::less<>());
 }
 
 int main()
