@@ -1,7 +1,7 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <numeric>
+    #include <iostream>
+    #include <string>
+    #include <vector>
+    #include <numeric>
 
 auto get_input()
 {
