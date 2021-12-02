@@ -15,3 +15,4 @@ find_package(Boost 1.77 REQUIRED)
 
 add_subdirectory(aoc0)
 add_subdirectory(aoc1)
+add_subdirectory(aoc2)
