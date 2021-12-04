@@ -58,6 +58,14 @@
         "utility": "cpp",
         "vector": "cpp",
         "array": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "span": "cpp",
+        "__hash_table": "cpp",
+        "__node_handle": "cpp",
+        "complex": "cpp",
+        "iomanip": "cpp",
+        "optional": "cpp",
+        "sstream": "cpp",
+        "unordered_map": "cpp"
     }
 }
