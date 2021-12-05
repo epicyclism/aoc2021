@@ -35,16 +35,12 @@ struct board
 {
     std::bitset<brd_size> played_;
     std::array<uint8_t, brd_size> brd_;
+    bool won_ = false;
     void play(uint8_t v)
     {
         auto f = std::find(brd_.begin(), brd_.end(), v);
         if( f != brd_.end())
-        {
             played_.set(std::distance(brd_.begin(), f), true);
-//            std::cout << +v << "\n";
-        }
-//        else
-//           std::cout << "(" << +v << ")\n";
     }
     std::optional<size_t> win() const
     {
@@ -56,7 +52,7 @@ struct board
     int compute()
     {
         auto sb = played_.to_string();
-        return std::transform_reduce(brd_.begin(), brd_.end(), sb.begin(), 0, std::plus<>(), [&](auto p, auto b){ std::cout << "{" << +p << ", " << b << ")\n"; return b == '0' ? p : 0;});
+        return std::transform_reduce(brd_.begin(), brd_.end(), sb.rbegin(), 0, std::plus<>(), [&](auto p, auto b){return b == '0' ? p : 0;});
     }
 };
 
@@ -69,7 +65,7 @@ std::ostream& operator<<(std::ostream& o, board const& b)
         ++c;
         if( c == brd_w)
         {
-             std::cout << "\n";
+            o << "\n";
             c = 0;
         }
     } 
@@ -101,7 +97,6 @@ std::pair<std::vector<uint8_t>, std::vector<board>> get_input ()
         else
         if(auto[m, a, b, c, d, e] = ctre::match<rx_row>(ln); m)
         {
-//            std::cout << ln << "\n";
             tmp.brd_[cell++] = sv_to_t<uint8_t>(a.to_view());
             tmp.brd_[cell++] = sv_to_t<uint8_t>(b.to_view());
             tmp.brd_[cell++] = sv_to_t<uint8_t>(c.to_view());
@@ -121,10 +116,29 @@ int pt1(auto nums, auto brds)
         {
             b.play(n);
             if( auto w = b.win(); w)
-            {
-                std::cout << b << "\n";
-                std::cout << b.compute() << " * " << +n << "\n";
                 return b.compute() * n;
+        }
+    }
+    return 0;
+}
+
+int pt2(auto nums, auto brds)
+{
+    int wins{0};
+    for(auto n : nums)
+    {
+        for(auto& b : brds)
+        {
+            if ( !b.won_)
+            {
+                b.play(n);
+                if( auto w = b.win(); w)
+                {
+                    b.won_ = true;
+                    ++wins;
+                    if( wins == brds.size())
+                        return b.compute() * n;
+                }
             }
         }
     }
@@ -134,8 +148,6 @@ int pt1(auto nums, auto brds)
 int main()
 {
     auto[c, b] = get_input();
-    for( auto& bd : b)
-        std::cout << bd << "\n";
-    std::cout << "got " << c.size() << " numbers and " << b.size() << " boards.\n";
     std::cout << "pt1 = " << pt1(c, b) << "\n";
+    std::cout << "pt2 = " << pt2(c, b) << "\n";
 }
