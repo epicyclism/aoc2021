@@ -21,9 +21,6 @@ pd operator+(pd const& l, pd const& r)
 
 pd operator*(pd const& l, pd const& r)
 {
-//    std::cout << l.a_ << ", " << l.h_ << ", " << l.d_ << " : ";
-//    std::cout << r.a_ << ", " << r.h_ << ", " << r.d_ << "\n";
- 
     return {l.a_ + r.d_, l.h_ + r.h_, l.d_ + ( l.a_ * r.h_)};
 }
 
@@ -74,7 +71,6 @@ int pt1(auto const& v)
 int pt2(auto const& v)
 {
     auto r = std::accumulate(v.begin(), v.end(), pd{}, std::multiplies<>());
-//    std::cout << r.a_ << ", " << r.h_ << ", " << r.d_ << "\n";
     return r.h_ * r.d_;;
 }
 
