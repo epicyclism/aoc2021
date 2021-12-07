@@ -19,7 +19,7 @@
             std::rotate(cnts.begin(), cnts.begin() + 1, cnts.end());
             cnts[6] += cnts[8];
         }
-        return std::accumulate(cnts.begin(), cnts.end(), 0i64);
+        return std::accumulate(cnts.begin(), cnts.end(), 0ll);
     }
 
     int main()
