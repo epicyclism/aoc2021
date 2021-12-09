@@ -16,7 +16,7 @@ std::pair<std::vector<char>, int> get_input()
         std::copy(ln.begin(), ln.end(), std::back_inserter(v));
     }
 
-    return {v, ln.size()};
+    return {v, int(ln.size())};
 }
 
 std::vector<int> find_low_points(std::vector<char> const& v, int s)
@@ -31,7 +31,7 @@ std::vector<int> find_low_points(std::vector<char> const& v, int s)
             css[1] = -1;
         if( i < s)
             css[2] = -1;
-        if(i > v.size() - s)
+        if(i >= v.size() - s)
             css[3] = -1;
         return css;
     };
@@ -60,7 +60,7 @@ int pt1(std::vector<char> const& v, int s)
     return cnt;
 }
 
-std::vector<bool> bfs(int id_from, std::vector<char> const& g, int s)
+std::vector<bool> bfs(int id_from, std::vector<char>& g, int s)
 {
     auto can_see_set = [&](auto i) -> std::array<int, 4>
     {
@@ -71,17 +71,19 @@ std::vector<bool> bfs(int id_from, std::vector<char> const& g, int s)
             css[1] = -1;
         if( i < s)
             css[2] = -1;
-        if(i > g.size() - s)
+        if(i >= g.size() - s)
             css[3] = -1;
         return css;
     };
     std::vector<bool>   visited(g.size());
     std::queue<int> q;
     q.push(id_from);
+    g[id_from] = 'X';
     while( !q.empty())
     {
         auto u = q.front(); q.pop();
         visited[u] = true;
+        g[u] = '_';
         for(auto v : can_see_set(u))
         {
             if( v >= 0 && g[v] != '9' && !visited[v])
@@ -91,7 +93,7 @@ std::vector<bool> bfs(int id_from, std::vector<char> const& g, int s)
     return visited;
 }
 
-int pt2(std::vector<char> const& v, int s)
+int pt2(std::vector<char> v, int s)
 {
     auto lp = find_low_points(v, s);
     std::vector<int> basin_sizes;
@@ -107,7 +109,6 @@ int pt2(std::vector<char> const& v, int s)
 int main()
 {
     auto[v, s] = get_input();
-    std::cout << "stride = " << s << ", size = " << v.size() << "\n";
     std::cout << "pt1 = " << pt1(v, s) << "\n";
     std::cout << "pt2 = " << pt2(v, s) << "\n";
 }
