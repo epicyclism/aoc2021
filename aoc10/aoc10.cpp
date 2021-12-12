@@ -5,59 +5,42 @@
 #include <algorithm>
 #include <numeric>
 #include <stack>
+#include <array>
+
+using namespace std::string_literals;
 
 auto get_input()
 {
     std::vector<std::string> v;
     std::string ln;
     while(std::getline(std::cin, ln))
-        v.emplace_back(std::move(ln));
+        v.push_back(ln);
     return v;
 }
 
+struct ocvv
+{
+    char o_;
+    char c_;
+    int v1_;
+    int v2_;
+};
+
+constexpr ocvv ocvvs [] = {{'(', ')', 3, 1}, {'[', ']', 57, 2}, {'{', '}', 1197, 3}, {'<', '>', 25137, 4}};
+
 bool open(char c)
 {
-    switch(c)
-    {
-        case '(':
-        case '{':
-        case '<':
-        case '[':
-            return true;
-    }
-    return false;
+    return std::find_if(std::begin(ocvvs), std::end(ocvvs), [&](auto& v) { return v.o_ == c; }) != std::end(ocvvs);
 }
 
-char match(char c)
+bool match(char o, char c)
 {
-    switch(c)
-    {
-        case ')':
-            return '(';
-        case  '}':
-            return '{';
-        case '>':
-            return '<';
-        case ']':
-            return '[';
-    }
-    return 0;
+    return std::find_if(std::begin(ocvvs), std::end(ocvvs), [&](auto& v ) { return v.o_ == o; })->c_ == c;
 }
 
 int value(char c)
 {
-    switch(c)
-    {
-        case ')':
-            return 3;
-        case ']':
-            return 57;
-        case '}':
-            return 1197;
-        case '>':
-            return 25137;
-    }
-    return 0;
+    return std::find_if(std::begin(ocvvs), std::end(ocvvs), [&](auto& v) { return v.c_ == c; })->v1_;
 }
 
 int score(std::string_view ln)
@@ -68,7 +51,7 @@ int score(std::string_view ln)
         if( open(c))
             st.push(c);
         else
-        if( match(c) == st.top())
+        if( match(st.top(), c))
             st.pop();
         else
             return value(c);
@@ -78,18 +61,7 @@ int score(std::string_view ln)
 
 int value2(char c)
 {
-    switch(c)
-    {
-        case '(':
-            return 1;
-        case '[':
-            return 2;
-        case '{':
-            return 3;
-        case '<':
-            return 4;
-    }
-    return 0;
+    return std::find_if(std::begin(ocvvs), std::end(ocvvs), [&](auto& v) { return v.o_ == c; })->v2_;
 }
 
 int64_t completion(std::string_view ln)
@@ -100,10 +72,10 @@ int64_t completion(std::string_view ln)
         if( open(c))
             st.push(c);
         else
-        if( match(c) == st.top())
+        if( match(st.top(), c))
             st.pop();
         else
-            return 0; // syntax error
+            return 0; // syntax error, ok
     }
     int64_t scr { 0};
     while( !st.empty())
