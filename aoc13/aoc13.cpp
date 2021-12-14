@@ -100,6 +100,7 @@ std::pair<paper, std::vector<fold>> get_input()
     }
     auto mx = std::max_element(tmp.begin(), tmp.end(), [](auto a, auto b){return a.first < b.first ;})->first;
     auto my = std::max_element(tmp.begin(), tmp.end(), [](auto a, auto b){return a.second < b.second ;})->second;
+
     paper p;
     p.x_ = mx + 1;
     p.sx_ = p.x_;
