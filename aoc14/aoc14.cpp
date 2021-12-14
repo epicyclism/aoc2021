@@ -30,9 +30,8 @@ auto get_input()
     {
         if( auto[m, f, t] = ctre::match<rxrule>(ln); m)
             rv.second.push_back({f.to_string(), t.to_view().front()});
-        else
-            std::cout << "parse error at " << ln << "\n";
     }
+    std::sort(rv.second.begin(), rv.second.end(), [](auto& l, auto& r){ return l.key_ < r.key_;});
     return rv;
 }
 
@@ -61,10 +60,10 @@ uint64_t pt12(auto& d, int steps)
             cp[0] = r.key_[0];
             cp[1] = r.val_;
             cp[2] = r.key_[1];
-            std::string_view v{ cp, cp + 2 };
+            std::string_view v{ cp, 2 };
             auto ra = std::find_if(r2.begin(), r2.end(), [v](auto& p) { return p.key_ == v; });
             (*ra).cnt_ += r.cnt_;
-            std::string_view v2{ cp + 1, cp + 3 };
+            std::string_view v2{ cp + 1, 2};
             ra = std::find_if(r2.begin(), r2.end(), [v2](auto& p) { return p.key_ == v2; });
             (*ra).cnt_ += r.cnt_;
             freq[r.val_ - 'A'] += r.cnt_;
