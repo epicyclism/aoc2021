@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
+#include <numeric>
 
 #include <ctre.hpp>
 
@@ -11,6 +12,7 @@ struct rule
 {
     std::string key_;
     char        val_;
+    uint64_t    cnt_;
 };
 
 using data_t = std::pair<std::string, std::vector<rule>>;
@@ -34,51 +36,57 @@ auto get_input()
     return rv;
 }
 
-void step(std::string& s, std::vector<rule> const& rules)
+uint64_t pt12(auto& d, int steps)
 {
-    int n {0};
-    while( n < s.size() - 1)
-    {
-        std::string_view v { s.data() + n, 2};
-        auto ra = std::find_if(rules.begin(), rules.end(), [v](auto& p){ return p.key_== v;});
-        if( ra != rules.end())
-        {
-            s.insert(n + 1, 1, (*ra).val_);
-            ++n;
-        }
-        ++n;
-    }
-//    std::cout << s << "\n";
-}
-
-int pt1( auto const& d)
-{
-    std::string s{ d.first};
-    for( int n = 0; n < 10; ++n)
-        step(s, d.second);
-    std::array<int, 26> freq{0};
-    for(auto c : s)
+    std::vector<rule>& rules{ d.second };
+    for (auto& r : rules)
+        r.cnt_ = 0;
+    std::array<uint64_t, 26> freq{ 0 };
+    for (auto c : d.first)
         ++freq[c - 'A'];
-    for( int n = 0; n < 26; ++n)
-        std::cout << char('A' + n) << " - " << freq[n] << "\n";
-    auto mn { s.size()};
-    auto mx { 0};
-    for( auto i : freq)
+    for (auto n = 0; n < d.first.size() - 1; ++n)
     {
-        if( i != 0 && i < mn)
-            mn = i;
-        if( i > mx)
-            mx = i;
+        std::string_view v{ d.first.data() + n, 2 };
+        auto ra = std::find_if(rules.begin(), rules.end(), [v](auto& p) { return p.key_ == v; });
+        ++(*ra).cnt_;
     }
-    std::cout << mn << " " << mx << "\n";
+    for (int n = 0; n < steps; ++n)
+    {
+        std::vector<rule> r2{ rules };
+        for (auto& r : r2)
+            r.cnt_ = 0;
+        for (auto& r : rules)
+        {
+            char cp[3];
+            cp[0] = r.key_[0];
+            cp[1] = r.val_;
+            cp[2] = r.key_[1];
+            std::string_view v{ cp, cp + 2 };
+            auto ra = std::find_if(r2.begin(), r2.end(), [v](auto& p) { return p.key_ == v; });
+            (*ra).cnt_ += r.cnt_;
+            std::string_view v2{ cp + 1, cp + 3 };
+            ra = std::find_if(r2.begin(), r2.end(), [v2](auto& p) { return p.key_ == v2; });
+            (*ra).cnt_ += r.cnt_;
+            freq[r.val_ - 'A'] += r.cnt_;
+        }
+        rules = r2;
+    }
+    uint64_t mx{ 0 };
+    for (auto i : freq)
+        if (i > mx)
+            mx = i;
+    uint64_t mn{ mx };
+    for (auto i : freq)
+        if (i != 0 && i < mn)
+            mn = i;
+
     return mx - mn;
 }
 
 int main()
 {
     auto d = get_input();
-    std::cout << "template = " << d.first << "\n";
-    std::cout << "and got " << d.second.size() << " rules\n";
 
-    std::cout << "pt1 = " << pt1(d) << "\n";
+    std::cout << "pt1  = " << pt12(d, 10) << "\n";
+    std::cout << "pt2 = " << pt12(d, 40) << "\n";
 }
