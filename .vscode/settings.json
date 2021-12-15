@@ -69,6 +69,10 @@
         "unordered_map": "cpp",
         "deque": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "__tree": "cpp",
+        "compare": "cpp",
+        "map": "cpp",
+        "set": "cpp"
     }
 }
