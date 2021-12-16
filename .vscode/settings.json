@@ -73,6 +73,7 @@
         "__tree": "cpp",
         "compare": "cpp",
         "map": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "fstream": "cpp"
     }
 }
