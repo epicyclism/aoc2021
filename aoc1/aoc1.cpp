@@ -1,8 +1,11 @@
-    #include <iostream>
-    #include <string>
-    #include <vector>
-    #include <numeric>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <numeric>
 
+#if 0
 auto get_input()
 {
     std::vector<int> rv;
@@ -28,3 +31,12 @@ int main()
     std::cout << "pt1 = " << pt1(in) << "\n";
     std::cout << "pt2 = " << pt2(in) << "\n";
 }
+#else
+int main()
+{
+    std::vector<int> v;
+    std::copy(std::istream_iterator<int>(std::cin), std::istream_iterator<int>(), std::back_inserter(v));
+    std::cout << "pt1 " << std::transform_reduce(v.begin(), v.end() - 1, v.begin() + 1, 0, std::plus<>(), std::less<>()) << "\n";
+    std::cout << "pt2 " << std::transform_reduce(v.begin(), v.end() - 3, v.begin() + 3, 0, std::plus<>(), std::less<>()) << "\n";
+}
+#endif
