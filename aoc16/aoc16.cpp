@@ -81,9 +81,9 @@ std::tuple<std::string_view, int64_t, int64_t> pkt(std::string_view s)
         };
         if (s[0] == '0') // n bytes
         {
-            int cnt = to_bin<16>(s);
+            size_t cnt = to_bin<16>(s);
             s.remove_prefix(16);
-            std::string_view s2{ s.begin(), s.begin() + cnt };
+            std::string_view s2{ s.data(), cnt };
             while (s2.size() > 6)
             {
                 auto[s3, vr, vl] = pkt(s2);
