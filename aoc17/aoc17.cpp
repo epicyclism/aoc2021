@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <optional>
 
 #include "ctre.hpp"
 
@@ -52,80 +53,76 @@ struct probe
 
 std::pair<int, int> x_range(tgt_area& tgt)
 {
-    int xf { 0};
-    // find xf
-    while(1)
+    int xf {0};
+    int xt{ tgt.x2_ + 1};
+    return {xf, xt};
+}
+
+std::optional<int> fly(int xi, int yi, tgt_area tgt)
+{
+    if(tgt.y1_ < tgt.y2_)
+        std::swap(tgt.y1_, tgt.y2_);
+    probe p{ xi, yi, 0, 0 };
+    int my{ yi };
+    bool h{ false };
+    while (1)
     {
-        probe p { xf, 0, 0, 0};
-        while(p.xv_ != 0)
-        {
-            p.step();
-            if( p.x_ >= tgt.x1_)
-                goto next;
-        }
-        ++xf;
-    }
-next:
-    // then xt
-    int xt {xf};
-    while(1)
-    {
-        probe p { xt, 0, 0, 0};
-        bool h {false};
-        while(p.xv_ != 0)
-        {
-            p.step();
-            if( p.x_ >= tgt.x1_ && p.x_ < tgt.x2_)
-                h = true;
-        }
-        ++xt;
-        if(!h)
+        p.step();
+        if (p.x_ >= tgt.x1_ && p.x_ <= tgt.x2_ && p.y_ <= tgt.y1_ && p.y_ >= tgt.y2_)
+            return { my };
+        if (p.y_ > my)
+            my = p.y_;
+        if (p.y_ < tgt.y2_)
             break;
     }
-    return {xf, xt};
+    return std::nullopt;
 }
 
 int pt1(tgt_area tgt)
 {
     if(tgt.y1_ < tgt.y2_)
         std::swap(tgt.y1_, tgt.y2_);
-    std::cout << tgt.x1_ << ", " << tgt.y1_ << " - " << tgt.x2_ << ", " << tgt.y2_ << "\n";
     auto xr { x_range(tgt)};
-    std::cout << "xrange " << xr.first << " to " << xr.second << "\n";
 
     int ym {0};
     for( int xi = xr.first; xi < xr.second; ++xi)
     {
-        int yi {9};
-        while(yi < 10)
+        int yi {0};
+        while(yi < 1000)
         {
-            int yml{0};
-            probe p{ xi, yi, 0, 0};
-            while(p.xv_ != 0)
-            {
-                p.step();
-                std::cout << p.x_ << " - " << p.y_ << "\n";
-                if( p.y_ > yml)
-                    yml = p.y_;
-                if( p.x_ >= tgt.x1_ && p.x_ <= tgt.x2_ && p.y_ <= tgt.y1_ && p.y_ >= tgt.y2_)
-                {
-                    std::cout << "hit\n";
-                    if( yml > ym)
-                        ym = yml;
-                    break;
-                }
-            }
-            std::cout << yi << ". " << yml << "\n";
+            auto yml = fly(xi, yi, tgt);
+            if (yml && yml.value() > ym)
+                ym = yml.value();
             ++yi;
         }
     }
     return ym;
 }
 
+int pt2(tgt_area tgt)
+{
+    if (tgt.y1_ < tgt.y2_)
+        std::swap(tgt.y1_, tgt.y2_);
+    auto xr{ x_range(tgt) };
+
+    int cnt{ 0 };
+    for (int xi = xr.first; xi < xr.second; ++xi)
+    {
+        int yi{ -1000 };
+        while (yi < 1000)
+        {
+            auto yml = fly(xi, yi, tgt);
+            if (yml)
+                ++cnt;
+            ++yi;
+        }
+    }
+    return cnt;
+}
 
 int main()
 {
     auto tgt {get_input()};
-    std::cout << "tgt " << tgt.x1_ << ", " << tgt.y1_ << " to " << tgt.x2_ << ", " << tgt.y2_ << "\n";
     std::cout << "pt1 = " << pt1(tgt) << "\n";
+    std::cout << "pt2 = " << pt2(tgt) << "\n";
 }
