@@ -235,9 +235,7 @@ int pt1(std::vector<scanner>& sc)
                         for( int tx = 0; tx < 48; ++tx)
                         {
                             if( diff((*it).bs_[ols[0].first], txform(tx, (*it2).bs_[ols[0].second])) == 
-                                diff((*it).bs_[ols[1].first], txform(tx, (*it2).bs_[ols[1].second])) &&
-                                diff((*it).bs_[ols[2].first], txform(tx, (*it2).bs_[ols[2].second])) == 
-                                diff((*it).bs_[ols[3].first], txform(tx, (*it2).bs_[ols[3].second])))
+                                diff((*it).bs_[ols[1].first], txform(tx, (*it2).bs_[ols[1].second])))
                             {
                                 (*it2).origin_ = diff((*it).bs_[ols[0].first], txform(tx, (*it2).bs_[ols[0].second]));
                                 for(auto& p : (*it2).bs_)
