@@ -4,15 +4,16 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         
         {
             "name": "clang++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [],
+            "program": "../build/aoc20/aoc20",
+            "args": ["< test.txt"],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": ".",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
