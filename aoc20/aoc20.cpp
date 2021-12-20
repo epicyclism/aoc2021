@@ -6,7 +6,7 @@
 #include <algorithm>
 
 using image_t = std::map<std::pair<int, int>, bool>;
-using key_t = std::bitset<512>;
+using k_t = std::bitset<512>;
 
 bool get(image_t const& i, std::pair<int, int> p, bool inf)
 {
@@ -94,7 +94,7 @@ void orbit(image_t& i, const bool inf, const int f, const int t)
     }
 }
 
-image_t step(image_t i1, key_t& key, bool inf, int f, int t)
+image_t step(image_t i1, k_t& key, bool inf, int f, int t)
 {
     orbit(i1, inf, f, t);
     image_t i2;
@@ -106,13 +106,13 @@ image_t step(image_t i1, key_t& key, bool inf, int f, int t)
 struct input
 {
     image_t i_;
-    key_t   k_;
+    k_t   k_;
     size_t  sz_;
 };
 
 input get_input()
 {
-    key_t bs;
+    k_t bs;
     image_t im;
     std::string ln;
     std::getline(std::cin, ln);
