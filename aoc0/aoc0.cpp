@@ -11,14 +11,7 @@
 #include <algorithm>
 #include <charconv>
 
-#include <ctre.hpp>
-
-template<typename T> T sv_to_t ( std::string_view sv)
-{
-	T t { 0 };
-	std::from_chars(sv.data(), sv.data() + sv.size(), t);
-	return t;
-}
+#include "ctre_inc.h"
 
 std::pair<int64_t, int64_t> get_input()
 {

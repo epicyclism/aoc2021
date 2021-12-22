@@ -3,7 +3,7 @@
 #include <string>
 #include <algorithm>
 
-#include <ctre.hpp>
+#include "ctre_inc.h"
 
 struct paper
 {
@@ -75,13 +75,6 @@ std::ostream& operator<< (std::ostream& ostr, paper const& p)
         ostr << "\n";
     }
     return ostr;
-}
-
-template<typename T> T sv_to_t ( std::string_view sv)
-{
-	T t { 0 };
-	std::from_chars(sv.data(), sv.data() + sv.size(), t);
-	return t;
 }
 
 std::pair<paper, std::vector<fold>> get_input()

@@ -5,7 +5,7 @@
 #include <charconv>
 #include <numeric>
 
-#include "ctre.hpp"
+#include "ctre_inc.h"
 
 struct pd
 {
@@ -22,13 +22,6 @@ pd operator+(pd const& l, pd const& r)
 pd operator*(pd const& l, pd const& r)
 {
     return {l.a_ + r.d_, l.h_ + r.h_, l.d_ + ( l.a_ * r.h_)};
-}
-
-template<typename T> T sv_to_t ( std::string_view sv)
-{
-	T t { 0 };
-	std::from_chars(sv.data(), sv.data() + sv.size(), t);
-	return t;
 }
 
 auto get_input()

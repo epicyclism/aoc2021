@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <numeric>
 
-#include <ctre.hpp>
+#include "ctre_inc.h"
 
 struct rule
 {

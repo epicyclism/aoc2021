@@ -7,7 +7,7 @@
 #include <optional>
 #include <cstdlib>
 
-#include "ctre.hpp"
+#include "ctre_inc.h"
 
 using pt = std::tuple<int, int, int>;
 using beacon = std::vector<int>;
@@ -24,13 +24,6 @@ std::ostream& operator<<(std::ostream& ostr, pt const& p)
 {
     ostr << std::get<0>(p) << ", " << std::get<1>(p) << ", " << std::get<2>(p);
     return ostr;
-}
-
-template<typename T> T sv_to_t ( std::string_view sv)
-{
-	T t { 0 };
-	std::from_chars(sv.data(), sv.data() + sv.size(), t);
-	return t;
 }
 
 int distance(pt const& a, pt const& b)

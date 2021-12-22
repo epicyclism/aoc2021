@@ -1,7 +1,6 @@
 #include <iostream>
 #include <compare>
 #include <string>
-#include <map>
 #include <vector>
 #include <array>
 #include <algorithm>
@@ -87,7 +86,6 @@ struct state_t
 };
 
 using result_t = std::pair<int64_t, int64_t>;
-using cache_tm = std::map<state_t, result_t>;
 using cache_t  = std::vector<result_t>;
 
 constexpr auto rolls()
@@ -102,52 +100,6 @@ constexpr auto rolls()
                 ++i;
             }
     return r;
-}
-
-result_t play2m(state_t st, cache_tm& c)
-{
-    if (c.contains(st))
-        return (*c.find(st)).second;
-    result_t r{ 0, 0 };
-    for (auto n : rolls()) // player 1
-    {
-        state_t s2{ st };
-        s2.p1_p_ += n;
-        while (s2.p1_p_ > 10)
-            s2.p1_p_ -= 10;
-        s2.p1_s_ += s2.p1_p_;
-        if (s2.p1_s_ >= 21) // win!
-            ++r.first;
-        else // player 2
-        {
-            for (auto m : rolls())
-            {
-                state_t s3{ s2 };
-                s3.p2_p_ += m;
-                while (s3.p2_p_ > 10)
-                    s3.p2_p_ -= 10;
-                s3.p2_s_ += s3.p2_p_;
-                if (s3.p2_s_ >= 21) // win!
-                    ++r.second;
-                else // recurse
-                {
-                    auto rt = play2m(s3, c);
-                    r.first += rt.first;
-                    r.second += rt.second;
-                }
-            }
-        }
-    }
-    c.insert(std::make_pair(st, r));
-    return r;;
-}
-
-int64_t pt2m(auto in)
-{
-    cache_tm c;
-
-    auto r = play2m({ in.first, 0, in.second, 0 }, c);
-    return std::max(r.first, r.second);
 }
 
 size_t to_key(state_t const& st)
@@ -207,7 +159,6 @@ int64_t pt2(auto in)
 int main()
 {
     auto in { get_input()};
-    std::cout << "pt1  = " << pt1(in) << "\n";
-    std::cout << "pt2  = " << pt2(in) << "\n";
-//    std::cout << "pt2m = " << pt2m(in) << "\n";
+    std::cout << "pt1 = " << pt1(in) << "\n";
+    std::cout << "pt2 = " << pt2(in) << "\n";
 }
