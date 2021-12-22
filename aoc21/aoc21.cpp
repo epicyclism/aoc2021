@@ -1,17 +1,12 @@
 #include <iostream>
+#include <compare>
 #include <string>
 #include <map>
 #include <vector>
 #include <array>
+#include <algorithm>
 
-#include "ctre.hpp"
-
-template<typename T> T sv_to_t ( std::string_view sv)
-{
-	T t { 0 };
-	std::from_chars(sv.data(), sv.data() + sv.size(), t);
-	return t;
-}
+#include "ctre_inc.h"
 
 auto get_input() -> std::pair<int, int> 
 {
@@ -84,24 +79,16 @@ int pt1 (auto in)
 
 struct state_t
 {
-    int p1_p_; // p1 place
-    int p1_s_; // p1 score
-    int p2_p_; // p2 place
-    int p2_s_; // p2 score
+    int p1_p_ = 0; // p1 place
+    int p1_s_ = 0; // p1 score
+    int p2_p_ = 0; // p2 place
+    int p2_s_ = 0; // p2 score
     auto operator<=>(state_t const&) const = default;
 };
 
-struct state_t_bs
-{
-    int32_t p1_p_ : 4; // p1 place
-    int32_t p2_p_ : 4; // p2 place
-    int32_t p1_s_ : 5; // p1 score
-    int32_t p2_s_ : 5; // p2 score
-};
-
 using result_t = std::pair<int64_t, int64_t>;
-using cache_t = std::map<state_t, result_t>;
-using cache_t_bs = std::vector<result_t>;
+using cache_tm = std::map<state_t, result_t>;
+using cache_t  = std::vector<result_t>;
 
 constexpr auto rolls()
 {
@@ -117,11 +104,65 @@ constexpr auto rolls()
     return r;
 }
 
-result_t play2(state_t st, cache_t& c)
+result_t play2m(state_t st, cache_tm& c)
 {
     if (c.contains(st))
         return (*c.find(st)).second;
     result_t r{ 0, 0 };
+    for (auto n : rolls()) // player 1
+    {
+        state_t s2{ st };
+        s2.p1_p_ += n;
+        while (s2.p1_p_ > 10)
+            s2.p1_p_ -= 10;
+        s2.p1_s_ += s2.p1_p_;
+        if (s2.p1_s_ >= 21) // win!
+            ++r.first;
+        else // player 2
+        {
+            for (auto m : rolls())
+            {
+                state_t s3{ s2 };
+                s3.p2_p_ += m;
+                while (s3.p2_p_ > 10)
+                    s3.p2_p_ -= 10;
+                s3.p2_s_ += s3.p2_p_;
+                if (s3.p2_s_ >= 21) // win!
+                    ++r.second;
+                else // recurse
+                {
+                    auto rt = play2m(s3, c);
+                    r.first += rt.first;
+                    r.second += rt.second;
+                }
+            }
+        }
+    }
+    c.insert(std::make_pair(st, r));
+    return r;;
+}
+
+int64_t pt2m(auto in)
+{
+    cache_tm c;
+
+    auto r = play2m({ in.first, 0, in.second, 0 }, c);
+    return std::max(r.first, r.second);
+}
+
+size_t to_key(state_t const& st)
+{
+    return    st.p1_p_ & 0x0f |
+            ((st.p1_s_ & 0x1f) << 4) |
+            ((st.p2_p_ & 0x0f) << 9) |
+            ((st.p2_s_ & 0x1f) << 13);
+}
+
+result_t play2(state_t st, cache_t& c)
+{
+    result_t r{ 0, 0 };
+    if (c[to_key(st)] != r)
+        return c[to_key(st)];
     for (auto n : rolls()) // player 1
     {
         state_t s2{ st };
@@ -151,66 +192,15 @@ result_t play2(state_t st, cache_t& c)
             }
         }
     }
-    c.insert(std::make_pair(st, r));
+    c[to_key(st)] = r;
     return r;;
 }
 
 int64_t pt2(auto in)
 {
-    cache_t c;
+    cache_t c {0x40000, {0, 0}};
 
     auto r = play2({ in.first, 0, in.second, 0 }, c);
-    return std::max(r.first, r.second);
-}
-
-size_t to_key(state_t_bs st)
-{
-    return static_cast<size_t>( *(int32_t*)&st );
-}
-
-result_t play2v(state_t_bs st, cache_t_bs& c)
-{
-    if (c[to_key(st)] != result_t{})
-        return c[to_key(st)];
-    result_t r{ 0, 0 };
-    for (auto n : rolls()) // player 1
-    {
-        state_t_bs s2{ st };
-        s2.p1_p_ += n;
-        while (s2.p1_p_ > 10)
-            s2.p1_p_ -= 10;
-        s2.p1_s_ += s2.p1_p_;
-        if (s2.p1_s_ >= 21) // win!
-            ++r.first;
-        else // player 2
-        {
-            for (auto m : rolls())
-            {
-                state_t_bs s3{ s2 };
-                s3.p2_p_ += m;
-                while (s3.p2_p_ > 10)
-                    s3.p2_p_ -= 10;
-                s3.p2_s_ += s3.p2_p_;
-                if (s3.p2_s_ >= 21) // win!
-                    ++r.second;
-                else // recurse
-                {
-                    auto rt = play2v(s3, c);
-                    r.first += rt.first;
-                    r.second += rt.second;
-                }
-            }
-        }
-    }
-    c[to_key(st)] = r;
-    return r;;
-}
-
-int64_t pt2v(auto in)
-{
-    cache_t_bs c {0x30000};
-
-    auto r = play2v({ in.first, 0, in.second, 0 }, c);
     return std::max(r.first, r.second);
 }
 
@@ -219,5 +209,5 @@ int main()
     auto in { get_input()};
     std::cout << "pt1  = " << pt1(in) << "\n";
     std::cout << "pt2  = " << pt2(in) << "\n";
-//    std::cout << "pt2v = " << pt2v(in) << "\n";
+//    std::cout << "pt2m = " << pt2m(in) << "\n";
 }

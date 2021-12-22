@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.18)
 include(FetchContent)
-project ("aoc2021")
+project (aoc2021)
 
 set_property(GLOBAL PROPERTY CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD 20)
@@ -35,3 +35,4 @@ add_subdirectory(aoc18)
 add_subdirectory(aoc19)
 add_subdirectory(aoc20)
 add_subdirectory(aoc21)
+add_subdirectory(aoc22)
