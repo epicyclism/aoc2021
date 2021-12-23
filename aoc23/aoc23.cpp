@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 using burrow_t = std::array<char, 19>;
 
@@ -65,6 +66,8 @@ burrow_t get_input()
     std::string ln;
     std::getline(std::cin, ln); // top
     std::getline(std::cin, ln); // burrow
+    for (int n = 0; n < 11; ++n)
+        b[n] = ln[n + 1];
     std::getline(std::cin, ln); // first row
     b[11] = ln[3];
     b[12] = ln[5];
@@ -85,7 +88,7 @@ bool is_finished(state_t const& s)
 {
     auto& b{ s.first };
     return b[11] == 'A' && b[15] == 'A' &&
-        b[12] == 'B' && b[15] == 'B' &&
+        b[12] == 'B' && b[16] == 'B' &&
         b[13] == 'C' && b[17] == 'C' &&
         b[14] == 'D' && b[18] == 'D';
 }
@@ -104,150 +107,271 @@ int top_from_room(int r)
     return tp[r - 11];
 }
 
-void generate(state_t const& s, std::vector<state_t>& vr)
+std::array<int, 2> tgt_from_pod(char c)
 {
-        auto& b{ s.first };
-        auto record_move_to_top = [&](int f, int t, char c)
+    constexpr std::array<std::array<int, 2>, 4> ts{ 11, 15, 12, 16, 13, 17, 13, 18 };
+    return ts[c - 'A'];
+}
+
+void generate(state_t& s, std::vector<state_t>& vr)
+{
+    auto& b{ s.first };
+    auto record_move_to_top = [&](int f, int t, char c)
+    {
+        auto scr = 1;
+        if (f > 14)
+            ++scr;
+        int ft = top_from_room(f);
+        if (std::all_of(b.begin() + std::min(ft, t), b.begin() + std::max(ft, t), [](auto c) { return c == '.'; }))
         {
-            auto scr = 1;
-            if (f > 14)
-                ++scr;
-            int ft = top_from_room(f);
-            if (std::all_of(b.begin() + std::min(ft, t), b.begin() + std::max(ft, t), [](auto c) { return c == '.'; }))
-            {
-                scr += std::abs(t - ft);
-                scr *= scr_from_type(c);
-                state_t st{ s };
-                st.first[f] = '.';
-                st.first[t] = c;
-                st.second += scr;
-                vr.emplace_back(st);
-            }
-        };
-        auto record_move_to_room = [&](int f, int t, char c)
-        {
-            auto scr = 1;
-            if (t > 14)
-                ++scr;
-            int tt = top_from_room(t);
-            if (std::all_of(b.begin() + std::min(f, tt), b.begin() + std::max(f, tt), [](auto c) { return c == '.'; }))
-            {
-                scr += std::abs(f - tt);
-                scr *= scr_from_type(c);
-                state_t st{ s };
-                st.first[f] = '.';
-                st.first[t] = c;
-                st.second += scr;
-                vr.emplace_back(st);
-            }
-        };
-        for (int n = 0; n < 11; ++n)
-        {
-            switch (b[n])
-            {
-            case 'A':
-                if (b[15] == '.')
-                    record_move_to_room(n, 15, 'A');
-                else
-                    if (b[11] == '.' && b[15] == 'A')
-                        record_move_to_room(n, 11, 'A');
-                break;
-            case 'B':
-                if (b[16] == '.')
-                    record_move_to_room(n, 16, 'B');
-                else
-                    if (b[12] == '.' && b[16] == 'B')
-                        record_move_to_room(n, 12, 'B');
-                break;
-            case 'C':
-                if (b[17] == '.')
-                    record_move_to_room(n, 17, 'C');
-                else
-                    if (b[13] == '.' && b[17] == 'C')
-                        record_move_to_room(n, 13, 'C');
-                break;
-            case 'D':
-                if (b[18] == '.')
-                    record_move_to_room(n, 18, 'D');
-                else
-                    if (b[14] == '.' && b[18] == 'D')
-                        record_move_to_room(n, 13, 'D');
-                break;
-            default:
-                break;
-            }
+            scr += std::abs(t - ft);
+            scr *= scr_from_type(c);
+            state_t st{ s };
+            st.first[f] = '.';
+            st.first[t] = c;
+            st.second += scr;
+            vr.emplace_back(st);
         }
-        // in the burrows, if not right one then can leave
-        constexpr std::array toprow{ 0, 1, 3, 5, 7, 9, 10 };
-        if (b[15] != 'A' && b[11] == '.')
+    };
+    auto record_move_to_room = [&](int f, int t, char c)
+    {
+        auto scr = 1;
+        if (t > 14)
+            ++scr;
+        int tt = top_from_room(t);
+        b[f] = '.';
+        if (std::all_of(b.begin() + std::min(f, tt), b.begin() + std::max(f, tt), [](auto c) { return c == '.'; }))
         {
-            for (auto t : toprow)
-                record_move_to_top(15, t, b[15]);
+            scr += std::abs(f - tt);
+            scr *= scr_from_type(c);
+            state_t st{ s };
+            st.first[t] = c;
+            st.second += scr;
+            vr.emplace_back(st);
         }
-        if (b[16] != 'B' && b[12] == '.')
+        b[f] = c;
+    };
+    auto record_move_room_to_room = [&](int f, int t, char c)
+    {
+        auto scr = 2;
+        if (f > 14)
+            ++scr;
+        if (t > 14)
+            ++scr;
+        int ff = top_from_room(f);
+        int tt = top_from_room(t);
+        if (std::all_of(b.begin() + std::min(ff, tt), b.begin() + std::max(ff, tt), [](auto c) { return c == '.'; }))
         {
-            for (auto t : toprow)
-                record_move_to_top(16, t, b[16]);
+            scr += std::abs(ff - tt);
+            scr *= scr_from_type(c);
+            state_t st{ s };
+            st.first[f] = '.';
+            st.first[t] = c;
+            st.second += scr;
+            vr.emplace_back(st);
         }
-        if (b[17] != 'C' && b[13] == '.')
+    };
+    for (int n = 0; n < 11; ++n)
+    {
+        switch (b[n])
         {
-            for (auto t : toprow)
-                record_move_to_top(17, t, b[17]);
+        case 'A':
+            if (b[15] == '.')
+                record_move_to_room(n, 15, 'A');
+            else
+                if (b[11] == '.' && b[15] == 'A')
+                    record_move_to_room(n, 11, 'A');
+            break;
+        case 'B':
+            if (b[16] == '.')
+                record_move_to_room(n, 16, 'B');
+            else
+                if (b[12] == '.' && b[16] == 'B')
+                    record_move_to_room(n, 12, 'B');
+            break;
+        case 'C':
+            if (b[17] == '.')
+                record_move_to_room(n, 17, 'C');
+            else
+                if (b[13] == '.' && b[17] == 'C')
+                    record_move_to_room(n, 13, 'C');
+            break;
+        case 'D':
+            if (b[18] == '.')
+                record_move_to_room(n, 18, 'D');
+            else
+                if (b[14] == '.' && b[18] == 'D')
+                    record_move_to_room(n, 14, 'D');
+            break;
+        default:
+            break;
         }
-        if (b[18] != 'D' && b[14] == '.')
+    }
+    // in the burrows, if not right one then can leave
+    constexpr std::array toprow{ 0, 1, 3, 5, 7, 9, 10 };
+    if (b[15] != 'A' && b[15] != '.')
+    {
+        auto f = 11;
+        if (b[11] == '.')
+            f = 15;
+        for (auto t : toprow)
+            record_move_to_top(f, t, b[f]);
+        auto t = tgt_from_pod(b[f]);
+        if (b[t[1]] == '.')
+            record_move_room_to_room(f, t[1], b[f]);
+        else
+            if (b[t[0]] == '.')
+                record_move_room_to_room(f, t[0], b[f]);
+    }
+    if (b[16] != 'B' && b[16] != '.')
+    {
+        auto f = 12;
+        if (b[12] == '.')
+            f = 16;
+        for (auto t : toprow)
+            record_move_to_top(f, t, b[f]);
+        auto t = tgt_from_pod(b[f]);
+        if (b[t[1]] == '.')
+            record_move_room_to_room(f, t[1], b[f]);
+        else
+            if (b[t[0]] == '.')
+                record_move_room_to_room(f, t[0], b[f]);
+    }
+    if (b[17] != 'C' && b[17] != '.')
+    {
+        auto f = 13;
+        if (b[13] == '.')
+            f = 17;
+        for (auto t : toprow)
+            record_move_to_top(f, t, b[f]);
+        auto t = tgt_from_pod(b[f]);
+        if (b[t[1]] == '.')
+            record_move_room_to_room(f, t[1], b[f]);
+        else
+            if (b[t[0]] == '.')
+                record_move_room_to_room(f, t[0], b[f]);
+    }
+    if (b[18] != 'D' && b[18] != '.')
+    {
+        auto f = 14;
+        if (b[14] == '.')
+            f = 18;
+        for (auto t : toprow)
+            record_move_to_top(f, t, b[f]);
+        auto t = tgt_from_pod(b[f]);
+        if (b[t[1]] == '.')
+            record_move_room_to_room(f, t[1], b[f]);
+        else
+            if (b[t[0]] == '.')
+                record_move_room_to_room(f, t[0], b[f]);
+    }
+    if (b[11] != 'A' && b[11] != '.')
+    {
+        for (auto t : toprow)
+            record_move_to_top(11, t, b[11]);
+        if (b[11] != '.')
         {
-            for (auto t : toprow)
-                record_move_to_top(18, t, b[18]);
+            auto t = tgt_from_pod(b[11]);
+            if (b[t[1]] == '.')
+                record_move_room_to_room(11, t[1], b[11]);
+            else
+                if (b[t[0]] == '.')
+                    record_move_room_to_room(11, t[0], b[11]);
         }
-        if (b[11] != 'A' || (b[15] != 'A' && b[11] != '.'))
+    }
+    if (b[12] != 'B' && b[12] != '.')
+    {
+        for (auto t : toprow)
+            record_move_to_top(12, t, b[12]);
+        if (b[12] != '.')
         {
-            for (auto t : toprow)
-                record_move_to_top(11, t, b[11]);
+            auto t = tgt_from_pod(b[12]);
+            if (b[t[1]] == '.')
+                record_move_room_to_room(12, t[1], b[12]);
+            else
+                if (b[t[0]] == '.')
+                    record_move_room_to_room(12, t[0], b[12]);
         }
-        if (b[12] != 'B' || (b[16] != 'B' && b[12] != '.'))
+    }
+    if (b[13] != 'C' && b[13] != '.')
+    {
+        for (auto t : toprow)
+            record_move_to_top(13, t, b[13]);
+        if (b[13] != '.')
         {
-            for (auto t : toprow)
-                record_move_to_top(12, t, b[12]);
+            auto t = tgt_from_pod(b[13]);
+            if (b[t[1]] == '.')
+                record_move_room_to_room(13, t[1], b[13]);
+            else
+                if (b[t[0]] == '.')
+                    record_move_room_to_room(13, t[0], b[13]);
         }
-        if (b[13] != 'C' || (b[17] != 'C' && b[13] != '.'))
+    }
+    if (b[14] != 'D' && b[14] != '.')
+    {
+        for (auto t : toprow)
+            record_move_to_top(14, t, b[14]);
+        if (b[14] != '.')
         {
-            for (auto t : toprow)
-                record_move_to_top(13, t, b[13]);
+            auto t = tgt_from_pod(b[14]);
+            if (b[t[1]] == '.')
+                record_move_room_to_room(14, t[1], b[14]);
+            else
+                if (b[t[0]] == '.')
+                    record_move_room_to_room(14, t[0], b[14]);
         }
-        if (b[14] != 'D' || (b[18] != 'D' && b[14] != '.'))
-        {
-            for (auto t : toprow)
-                record_move_to_top(14, t, b[14]);
-        }
+    }
 }
 
 int pt1(auto in)
 {
     std::cout << in << "\n";
     std::vector<state_t> vo;
-    int mx{ 0 };
+    int mn{ 1000000000 };
     vo.push_back({ in, 0 });
+    std::map<burrow_t, int> mp;
+    int n = 0;
     while (!vo.empty())
     {
         std::vector<state_t> vi;
         for (auto& st : vo)
-            generate(st, vi);
+        {
+            if (!mp.contains(st.first))
+            {
+                generate(st, vi);
+                mp.insert(st);
+            }
+            else
+                if (mp[st.first] > st.second)
+                {
+                    generate(st, vi);
+                    mp.insert_or_assign(st.first, st.second);
+                }
+        }
         for (auto& st : vi)
         {
-            if (is_finished(st) && st.second > mx)
-                mx = st.second;
+            if (is_finished(st))
+            {
+                if (st.second < mn)
+                    mn = st.second;
+            }
         }
         std::erase_if(vi, [](auto& st2) { return is_finished(st2); });
-        vo.swap(vi);
-    }
 #if 0
-    for (auto& st : vo)
-    {
-        std::cout << st.second << "\n";
-        std::cout << st.first << "\n";
-    }
+        if (vi.empty())
+        {
+            std::cout << n << " --------------\n";
+            for (auto& st : vo)
+            {
+                std::cout << st.second << "\n";
+                std::cout << st.first << "\n";
+            }
+        }
 #endif
-    return mx;
+        vo.swap(vi);
+        ++n;
+    }
+    return mn;
 }
 
 int main()
