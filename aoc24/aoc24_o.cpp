@@ -100,7 +100,6 @@ regs execute(program p, std::queue<int64_t>& in, int64_t init_z = 0)
         switch (i.op_)
         {
         case opcode::inp:
-            std::cout << "z = " << r[3] << "\n";
             r[reg_to_off(i.a_)] = in.front();
             in.pop();
             break;
@@ -130,9 +129,9 @@ regs execute(program p, std::queue<int64_t>& in, int64_t init_z = 0)
             break;
         case opcode::eql:
             if (i.b_ == reg::i)
-                r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == i.i_;
+                r[reg_to_off(i.a_)] = (r[reg_to_off(i.a_)] == i.i_ ? 1 : 0);
             else
-                r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == r[reg_to_off(i.b_)];
+                r[reg_to_off(i.a_)] = (r[reg_to_off(i.a_)] == r[reg_to_off(i.b_)] ? 1 : 0);
             break;
         }
     }
@@ -150,12 +149,41 @@ int64_t proc(program const& p, auto input)
 
 void pt1(program const& p)
 {
-    std::array<int64_t, 14> mn{ 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    std::array<int64_t, 14> mn { 1,1,4,9,9,6,2,9,6,9,8,9,7,1 };
     std::cout << "zf = " << proc(p, mn) << "\n";
+    std::array<int64_t, 14> mn2{ 9,3,4,9,9,6,2,9,6,9,8,9,9,9 };
+    std::cout << "zf = " << proc(p, mn2) << "\n";
+    std::array<int64_t, 14> mn3{ 9,9,2,6,4,1,2,8,9,1,1,2,6,9 };
+    std::cout << "zf = " << proc(p, mn3) << "\n";
+}
+
+//11499618121471
+void pt2(program const& p)
+{
+    for(int d = 8; d > 0; --d)
+    for(int e = 9; e > 0; --e)
+        for(int f = 9; f > 0; --f)
+            for(int g = 9; g > 0; --g)
+                for (int h = 9; h > 0; --h)
+                    for (int i = 9; i > 0; --i)
+                        for (int j = 9; j > 0; --j)
+                            for (int k = 9; k > 0; --k)
+                                for (int l = 9; l > 0; --l)
+                                    for (int m = 9; m > 0; --m)
+                                        for (int n = 9; n > 0; --n)
+                                        {
+                                            std::array<int64_t, 14> mn{ 1,1,4,d,e,f, g, h, i, j, k, l, m, n };
+                                            if (proc(p, mn) == 0)
+                                                std::cout << "1149" << d << e << f << g << h << i << j << k << l << m << n << " gets 0\n";
+                                        }
 }
 
 int main()
 {
     auto in{ get_input() };
     pt1(in);
+    pt2(in);
 }
+
+// 11499618121471 too high
+// 11494118121471 too high
