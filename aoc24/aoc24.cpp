@@ -1,14 +1,23 @@
 #include <iostream>
 #include <array>
 #include <vector>
+#include <queue>
 #include <string>
 #include <string_view>
+#include <map>
+#include <unordered_map>
+#include <algorithm>
 
 #include "ctre_inc.h"
 
 using regs = std::array<int64_t, 4>;
 
 enum class reg    { w, x, y, z, i};
+int reg_to_off(reg r)
+{
+    return static_cast<int>(r);
+}
+
 enum class opcode { inp, add, mul, div, mod, eql, tilt};
 
 opcode op_f_sv(std::string_view s)
@@ -46,10 +55,10 @@ reg reg_f_sv(std::string_view s)
 
 struct inst
 {
-    opcode  op_;
-    reg     a_;
-    reg     b_;
-    int64_t i_;
+    opcode  op_ = opcode::tilt;
+    reg     a_  = reg::w;
+    reg     b_  = reg::i;
+    int64_t i_  = 0;
 };
 
 using program = std::vector<inst> ;
@@ -57,23 +66,134 @@ using program = std::vector<inst> ;
 auto get_input()
 {
     program p;
-    constexpr auto rx = ctll::fixed_string{ R"((inp|add|mul|div|mod|eql) (w|x|y|z) ?(w|x|y|z|-?\d+)?)" };
     std::string ln;
-    while(std::getline(std::cin, ln))
+    while (std::getline(std::cin, ln))
     {
-        if(auto[m, op, src, des] = ctre::match<rx>(ln); m)
+        std::string_view op{ ln.begin(), ln.begin() + 3 };
+        std::string_view de{ ln.begin() + 4, ln.begin() + 5 };
+        if (ln.size() < 6) // inp
         {
-            p.push_back({op_f_sv(op.to_view()), reg_f_sv(src.to_view()), reg_f_sv(des.to_view()), 0});
-            if( p.back().b_ == reg::i)
-                p.back().i_ = sv_to_t<int64_t>(des.to_view());
+            p.push_back({ opcode::inp, reg_f_sv(de), reg::w, 0 });
         }
         else
-            std::cout << "parse fail at : " << ln << "\n";
+        {
+            std::string_view src{ ln.begin() + 6, ln.end()};
+            auto sc = reg_f_sv(src);
+            if (sc == reg::i)
+            {
+                p.push_back({ op_f_sv(op), reg_f_sv(de), sc, sv_to_t<int64_t>(src)});
+
+            }
+            else
+            {
+                p.push_back({ op_f_sv(op), reg_f_sv(de), sc, 0});
+            }
+        }
     }
     return p;
+}
+
+void apply_inst(inst& i, regs& r)
+{
+    switch (i.op_)
+    {
+    case opcode::inp:
+        std::cout << "tilt\n";
+        break;
+    case opcode::add:
+        if (i.b_ == reg::i)
+            r[reg_to_off(i.a_)] += i.i_;
+        else
+            r[reg_to_off(i.a_)] += r[reg_to_off(i.b_)];
+        break;
+    case opcode::mul:
+        if (i.b_ == reg::i)
+            r[reg_to_off(i.a_)] *= i.i_;
+        else
+            r[reg_to_off(i.a_)] *= r[reg_to_off(i.b_)];
+        break;
+    case opcode::div:
+        if (i.b_ == reg::i)
+            r[reg_to_off(i.a_)] /= i.i_;
+        else
+            r[reg_to_off(i.a_)] /= r[reg_to_off(i.b_)];
+        break;
+    case opcode::mod:
+        if (i.b_ == reg::i)
+            r[reg_to_off(i.a_)] %= i.i_;
+        else
+            r[reg_to_off(i.a_)] %= r[reg_to_off(i.b_)];
+        break;
+    case opcode::eql:
+        if (i.b_ == reg::i)
+            r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == i.i_;
+        else
+            r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == r[reg_to_off(i.b_)];
+        break;
+    }
+}
+
+template<>
+struct std::hash<regs>
+{
+    std::size_t operator()(regs const& r) const noexcept
+    {
+        int64_t i = r[0] ^ r[1] ^ r[2] ^ r[3];
+        return std::hash<int64_t>{}(i);
+    }
+};
+
+int64_t pt1(program const& p)
+{
+    struct alu
+    {
+        regs r_;
+        int64_t mx_;
+    };
+    std::vector<alu> vr;
+    vr.push_back({});
+    vr.back().r_.fill(0);
+    vr.back().mx_ = 0;
+
+    for (auto i : p)
+    {
+        if (i.op_ == opcode::inp)
+        {
+            std::unordered_map<regs, int64_t> mp;
+            std::vector<alu> vrr;
+            for (auto& r : vr)
+            {
+                for (int i = 1; i < 10; ++i)
+                {
+                    auto rn{ r };
+                    rn.r_[0] = i;
+                    rn.mx_ *= 10;
+                    rn.mx_ += i;
+                    if (mp.contains(rn.r_))
+                    {
+                        auto m = mp[rn.r_];
+                        mp[rn.r_] = std::max(m, rn.mx_);
+                    }
+                    else
+                    {
+                        mp.insert({ rn.r_, rn.mx_ });
+                        vrr.emplace_back(rn);
+                    }
+                }
+            }
+            vr.swap(vrr);
+            std::cout << vr.size() << "\n";
+        }
+        else
+            for (auto& r : vr)
+                apply_inst(i, r.r_);
+    }
+    std::erase_if(vr, [](auto& r) { return r.r_[3] == 0; });
+    return (*std::max_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mx_ < r.mx_; })).mx_;
 }
 
 int main()
 {
     auto in { get_input()};
+    std::cout << "pt1 = " << pt1(in) << "\n";
 }
