@@ -93,7 +93,7 @@ auto get_input()
     return p;
 }
 
-void apply_inst(inst& i, regs& r)
+void apply_inst(inst const& i, regs& r)
 {
     switch (i.op_)
     {
@@ -155,7 +155,7 @@ int64_t pt1(program const& p)
     vr.back().r_.fill(0);
     vr.back().mx_ = 0;
 
-    for (auto i : p)
+    for (auto const& i : p)
     {
         if (i.op_ == opcode::inp)
         {
@@ -163,12 +163,12 @@ int64_t pt1(program const& p)
             std::vector<alu> vrr;
             for (auto& r : vr)
             {
-                for (int i = 1; i < 10; ++i)
+                for (int n = 1; n < 10; ++n)
                 {
                     auto rn{ r };
-                    rn.r_[0] = i;
+                    rn.r_[reg_to_off(i.a_)] = n;
                     rn.mx_ *= 10;
-                    rn.mx_ += i;
+                    rn.mx_ += n;
                     if (mp.contains(rn.r_))
                     {
                         auto m = mp[rn.r_];
@@ -197,3 +197,5 @@ int main()
     auto in { get_input()};
     std::cout << "pt1 = " << pt1(in) << "\n";
 }
+
+// 99264128911269 too high
