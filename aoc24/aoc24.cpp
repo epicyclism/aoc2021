@@ -159,7 +159,7 @@ int64_t pt1(program const& p)
     {
         if (i.op_ == opcode::inp)
         {
-            std::unordered_map<regs, int64_t> mp;
+            std::unordered_map<regs, size_t> mp;
             std::vector<alu> vrr;
             for (auto& r : vr)
             {
@@ -172,11 +172,11 @@ int64_t pt1(program const& p)
                     if (mp.contains(rn.r_))
                     {
                         auto m = mp[rn.r_];
-                        mp[rn.r_] = std::max(m, rn.mx_);
+                        vrr[m].mx_ = std::max(vrr[m].mx_, rn.mx_);
                     }
                     else
                     {
-                        mp.insert({ rn.r_, rn.mx_ });
+                        mp.insert({ rn.r_, vrr.size() });
                         vrr.emplace_back(rn);
                     }
                 }
@@ -189,6 +189,7 @@ int64_t pt1(program const& p)
                 apply_inst(i, r.r_);
     }
     std::erase_if(vr, [](auto& r) { return r.r_[3] == 0; });
+    std::cout << "Got " << vr.size() << "entries with z = 0\n";
     return (*std::max_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mx_ < r.mx_; })).mx_;
 }
 
