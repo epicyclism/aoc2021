@@ -137,7 +137,7 @@ struct std::hash<std::pair<char, int64_t>>
 {
     std::size_t operator()(std::pair<char, int64_t> const& p) const noexcept
     {
-        int64_t i = p.first << 56 | p.second;
+        int64_t i = int64_t(p.first) << 56 | p.second;
         return std::hash<int64_t>{}(i);
     }
 };
