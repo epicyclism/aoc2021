@@ -4,7 +4,6 @@
 #include <queue>
 #include <string>
 #include <string_view>
-#include <map>
 #include <unordered_map>
 #include <algorithm>
 
@@ -143,17 +142,19 @@ struct std::hash<std::pair<char, int64_t>>
     }
 };
 
-int64_t pt1(program const& p)
+std::pair<int64_t, int64_t> pt12(program const& p)
 {
     struct alu
     {
         regs r_;
         int64_t mx_;
+	int64_t mn_;
     };
     std::vector<alu> vr;
     vr.push_back({});
     vr.back().r_.fill(0);
     vr.back().mx_ = 0;
+    vr.back().mn_ = 0;
 
     for (auto const& i : p)
     {
@@ -169,10 +170,13 @@ int64_t pt1(program const& p)
                     rn.r_[reg_to_off(i.a_)] = n;
                     rn.mx_ *= 10;
                     rn.mx_ += n;
+		    rn.mn_ *= 10;
+		    rn.mn_ += n;
                     if (mp.contains({ n, rn.r_[3] }))
                     {
                         auto m = mp[{n, rn.r_[3]}];
                         vrr[m].mx_ = std::max(vrr[m].mx_, rn.mx_);
+                        vrr[m].mn_ = std::min(vrr[m].mn_, rn.mn_);
                     }
                     else
                     {
@@ -189,14 +193,16 @@ int64_t pt1(program const& p)
                 apply_inst(i, r.r_);
     }
     std::erase_if(vr, [](auto& r) { return r.r_[3] != 0; });
-    std::cout << "Got " << vr.size() << " entries with z = 0\n";
-    return (*std::max_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mx_ < r.mx_; })).mx_;
+    auto mx = (*std::max_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mx_ < r.mx_; })).mx_;
+    auto mn = (*std::min_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mn_ < r.mn_; })).mn_;
+    
+    return { mx, mn};
 }
 
 int main()
 {
     auto in { get_input()};
-    std::cout << "pt1 = " << pt1(in) << "\n";
+    auto [p1, p2] = pt12(in) ;
+    std::cout << "pt1 = " << p1 << "\n";
+    std::cout << "pt2 = " << p2 << "\n";
 }
-
-// 99264128911269 too high
