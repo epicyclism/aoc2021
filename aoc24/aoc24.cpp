@@ -68,15 +68,15 @@ auto get_input()
     std::string ln;
     while (std::getline(std::cin, ln))
     {
-        std::string_view op{ ln.begin(), ln.begin() + 3 };
-        std::string_view de{ ln.begin() + 4, ln.begin() + 5 };
+        std::string_view op{ ln.data(), 3 };
+        std::string_view de{ ln.data() + 4, 1 };
         if (ln.size() < 6) // inp
         {
             p.push_back({ opcode::inp, reg_f_sv(de), reg::w, 0 });
         }
         else
         {
-            std::string_view src{ ln.begin() + 6, ln.end()};
+            std::string_view src{ ln.data() + 6, ln.size() - 6};
             auto sc = reg_f_sv(src);
             if (sc == reg::i)
             {
@@ -128,6 +128,8 @@ void apply_inst(inst const& i, regs& r)
             r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == i.i_;
         else
             r[reg_to_off(i.a_)] = r[reg_to_off(i.a_)] == r[reg_to_off(i.b_)];
+        break;
+    default:
         break;
     }
 }
