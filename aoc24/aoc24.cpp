@@ -188,7 +188,6 @@ std::pair<int64_t, int64_t> pt12(program const& p)
                 }
             }
             vr.swap(vrr);
-            std::cout << vr.size() << "\n";
         }
         else
             for (auto& r : vr)

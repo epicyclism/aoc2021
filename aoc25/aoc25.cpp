@@ -37,7 +37,7 @@ constexpr char south { 'v' };
 constexpr char space { '.'};
 
 // returns 'p' if cannot move
-int next(bed_t const& b, int p)
+int next_east(bed_t const& b, int p)
 {
     auto t {p};
     if (b.v_[p] == east)
@@ -46,9 +46,15 @@ int next(bed_t const& b, int p)
             t = t / b.stride_ * b.stride_;
         else
             ++t;
-        std::cout << "east " << p << " to " << t << "\n";
     }
-    else
+    if ( b.v_[t] == space)
+        return t;
+    return p;
+}
+
+int next_south(bed_t const& b, int p)
+{
+    auto t {p};
     if(b.v_[p] == south)
     {
         if( t >= b.v_.size() - b.stride_)
@@ -64,38 +70,44 @@ int next(bed_t const& b, int p)
 int step(bed_t& b)
 {
     int cnt {0};
-    std::vector<char> bo ( b.v_.size(), 'x');
+    std::vector<char> bo(b.v_);
     for(int n = 0; n < b.v_.size(); ++n)
     {
-        auto nxt = next(b, n);
+        auto nxt = next_east(b, n);
         if( nxt != n)
         {
-            std::cout << n << " (" << b.v_[n] << ") -> " << nxt << "\n";
+            bo[nxt]= b.v_[n];
+            bo[n] = space;
             ++cnt;
-            bo[nxt] = b.v_[n];
         }
-        else
-            bo[n] = b.v_[n];       
     }
     b.v_.swap(bo);
+    std::copy(b.v_.begin(), b.v_.end(), bo.begin());
+    for(int n = 0; n < b.v_.size(); ++n)
+    {
+        auto nxt = next_south(b, n);
+        if( nxt != n)
+        {
+            bo[nxt]= b.v_[n];
+            bo[n] = space;
+            ++cnt;
+        }
+    }
+    b.v_.swap(bo);
+
     return cnt;
 }
 
-int pt(auto b)
+int pt1(auto b)
 {
     int steps { 1 };
     while(step(b))
-    {
-        std::cout << b << "\n";
-        ++steps;
-    }
+       ++steps;
     return steps;
 }
 
 int main()
 {
     auto in { get_input()};
-    std::cout << "stride = " << in.stride_ << "\n";
-    std::cout << in << "\n";
-    std::cout << "pt = " << pt(in) << "\n";
+    std::cout << "pt1 = " << pt1(in) << "\n";
 }
