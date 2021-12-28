@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
 #include <vector>
-#include <queue>
+#include <execution>
 #include <string>
 #include <string_view>
 #include <algorithm>
@@ -173,7 +173,6 @@ std::pair<int64_t, int64_t> pt12(program const& p)
         {
             std::vector<alu> vrr;
             std::sort(vr.begin(), vr.end(), [](auto const& l, auto const& r){ return l.r_[3] < r.r_[3];});
-//            vr.erase(std::unique(vr.begin(), vr.end(), [](auto const& l, auto const& r){ return l.r_[3] == r.r_[3];}), vr.end());
             vr.erase(my_unique(vr), vr.end());
             for (auto& r : vr)
             {
@@ -191,8 +190,7 @@ std::pair<int64_t, int64_t> pt12(program const& p)
             vr.swap(vrr);
         }
         else
-            for (auto& r : vr)
-                apply_inst(i, r.r_);
+            std::for_each(vr.begin(), vr.end(), [&](auto& r) { apply_inst(i, r.r_);});
     }
     std::erase_if(vr, [](auto& r) { return r.r_[3] != 0; });
     auto mx = (*std::max_element(vr.begin(), vr.end(), [](auto const& l, auto const& r) { return l.mx_ < r.mx_; })).mx_;
