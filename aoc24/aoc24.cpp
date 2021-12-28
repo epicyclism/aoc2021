@@ -4,7 +4,6 @@
 #include <queue>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <algorithm>
 
 #include "ctre_inc.h"
@@ -134,23 +133,33 @@ void apply_inst(inst const& i, regs& r)
     }
 }
 
-template<>
-struct std::hash<std::pair<char, int64_t>>
-{
-    std::size_t operator()(std::pair<char, int64_t> const& p) const noexcept
-    {
-        int64_t i = int64_t(p.first) << 56 | p.second;
-        return std::hash<int64_t>{}(i);
-    }
-};
-
 std::pair<int64_t, int64_t> pt12(program const& p)
 {
     struct alu
     {
         regs r_;
         int64_t mx_;
-	int64_t mn_;
+    	int64_t mn_;
+    };
+    auto my_unique = [](auto& vr)
+    {
+        auto b {vr.begin()};
+        auto e {vr.end()};
+        if( b == e)
+            return e;
+        auto r {b};
+        while(++b != e)
+            if( !((*b).r_[3] == (*r).r_[3]) && r+1 != b)
+            {
+                ++r;
+                *r = std::move(*b);
+            }
+            else
+            {
+                (*r).mx_ = std::max((*r).mx_, (*b).mx_);
+                (*r).mn_ = std::min((*r).mn_, (*b).mn_);
+            }
+        return ++r;
     };
     std::vector<alu> vr;
     vr.push_back({});
@@ -162,8 +171,10 @@ std::pair<int64_t, int64_t> pt12(program const& p)
     {
         if (i.op_ == opcode::inp)
         {
-            std::unordered_map<std::pair<char, int64_t>, size_t> mp;
             std::vector<alu> vrr;
+            std::sort(vr.begin(), vr.end(), [](auto const& l, auto const& r){ return l.r_[3] < r.r_[3];});
+//            vr.erase(std::unique(vr.begin(), vr.end(), [](auto const& l, auto const& r){ return l.r_[3] == r.r_[3];}), vr.end());
+            vr.erase(my_unique(vr), vr.end());
             for (auto& r : vr)
             {
                 for (int n = 1; n < 10; ++n)
@@ -172,19 +183,9 @@ std::pair<int64_t, int64_t> pt12(program const& p)
                     rn.r_[reg_to_off(i.a_)] = n;
                     rn.mx_ *= 10;
                     rn.mx_ += n;
-		    rn.mn_ *= 10;
-		    rn.mn_ += n;
-                    if (mp.contains({ n, rn.r_[3] }))
-                    {
-                        auto m = mp[{n, rn.r_[3]}];
-                        vrr[m].mx_ = std::max(vrr[m].mx_, rn.mx_);
-                        vrr[m].mn_ = std::min(vrr[m].mn_, rn.mn_);
-                    }
-                    else
-                    {
-                        mp.insert({ {n,  rn.r_[3]}, vrr.size() });
-                        vrr.emplace_back(rn);
-                    }
+        		    rn.mn_ *= 10;
+        		    rn.mn_ += n;
+                    vrr.emplace_back(rn);
                 }
             }
             vr.swap(vrr);
@@ -207,5 +208,3 @@ int main()
     std::cout << "pt1 = " << p1 << "\n";
     std::cout << "pt2 = " << p2 << "\n";
 }
-
-// 99264128911269 too high
