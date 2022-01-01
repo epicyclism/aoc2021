@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <queue>
 #include <map>
-#include <type_traits>
 
 using burrow_t  = std::array<char, 19>;
 using burrow2_t = std::array<char, 27>;
@@ -223,31 +222,6 @@ void generate(state_t& s, std::vector<state_t>& vr)
         }
         b[f] = ch;
     };
-    auto record_move_room_to_room = [&](int f, int t, char ch) -> bool
-    {
-        auto scr {scr_from_from(f)};
-        scr += scr_from_from(t);
-        int ff = top_from_room(f);
-        int tt = top_from_room(t);
-        bool br { false};
-        if (std::all_of(b.begin() + std::min(ff, tt), b.begin() + std::max(ff, tt) + 1, [](auto c) { return c == '.'; }))
-        {
-            scr += std::abs(ff - tt);
-            scr *= scr_from_type(ch);
-            state_t st{ s };
-            if(st.first[t] != '.')
-            {
-                std::cout << "record_move_room_to_room bug. " << f << " -> " << t << "\n";
-                std::cout << st.first << "\n";
-            }
-            st.first[f] = '.';
-            st.first[t] = ch;
-            st.second += scr;
-            vr.emplace_back(st);
-            br = true;
-        }
-        return br;
-    };
     for (int n = 0; n < 11; ++n)
     {
         switch (b[n])
@@ -291,17 +265,8 @@ void generate(state_t& s, std::vector<state_t>& vr)
         if (b[f] == '.')
             f = f + 4;
         auto t = tgt_from_pod(b[f]);
-        bool tt {false};
-        if (b[t[1]] == '.')
-            tt = record_move_room_to_room(f, t[1], b[f]);
-        else
-        if (b[t[0]] == '.')
-            tt = record_move_room_to_room(f, t[0], b[f]);
-        if( !tt)
-        {
-            for (auto t : toprow)
-                record_move_to_top(f, t, b[f]);
-        }
+        for (auto t : toprow)
+           record_move_to_top(f, t, b[f]);
     };
     if (b[15] != 'A' && b[15] != '.')
         out_of_col(11);
@@ -388,43 +353,6 @@ void generate(state2_t& s, std::vector<state2_t>& vr)
         }
         b[f] = ch;
     };
-    auto record_move_room_to_room = [&](int f, int t, char ch) -> bool
-    {
-        auto scr {scr_from_from(f)};
-        scr += scr_from_from(t);
-        int ff = top_from_room(f);
-        int tt = top_from_room(t);
-        bool br { false};
-        if( b[f] != ch)
-        {
-            std::cout << "record_move_room_to_room bug, bad from " << f << "\n";
-            std::cout << b << "\n";
-        }
-        auto tgts = tgt_from_pod2(b[f]);
-        bool proceed {true};
-        for(auto c : tgts)
-        {
-            if( b[c] != ch && b[c] != '.')
-                proceed = false;
-        }
-        if (proceed && std::all_of(b.begin() + std::min(ff, tt), b.begin() + std::max(ff, tt) + 1, [](auto c) { return c == '.'; }))
-        {
-            scr += std::abs(ff - tt);
-            scr *= scr_from_type(ch);
-            state2_t st{ s };
-            if(st.first[t] != '.')
-            {
-                std::cout << "record move to room bug. " << f << " -> " << t << "\n";
-                std::cout << st.first << "\n";
-            }
-            st.first[f] = '.';
-            st.first[t] = ch;
-            st.second += scr;
-            vr.emplace_back(st);
-            br = true;
-        }
-        return br;
-    };
     for (int n = 0; n < 11; ++n)
     {
         switch (b[n])
@@ -496,23 +424,8 @@ void generate(state2_t& s, std::vector<state2_t>& vr)
         if (b[f] == '.')
             f = f + 4;
         auto t = tgt_from_pod2(b[f]);
-        bool br = false;
-        if (b[t[3]] == '.')
-            br = record_move_room_to_room(f, t[3], b[f]);
-        else
-        if (b[t[2]] == '.')
-            br = record_move_room_to_room(f, t[2], b[f]);
-        else
-        if (b[t[1]] == '.')
-            br = record_move_room_to_room(f, t[1], b[f]);
-        else
-        if (b[t[0]] == '.')
-            br = record_move_room_to_room(f, t[0], b[f]);
-        if (!br)
-        {
-            for (auto t2 : toprow)
-                record_move_to_top(f, t2, b[f]);
-        }
+        for (auto t2 : toprow)
+            record_move_to_top(f, t2, b[f]);
     };
     if (b[23] != 'A' && b[23] != '.')
         out_of_col(11, b[23]);
@@ -570,7 +483,7 @@ int search_g(auto in)
                 pd = mpp[pd];
             }
 #endif
-            return p.second;
+           return p.second;
         }
         std::vector<decltype(in)> vi; 
         generate(p, vi);
@@ -591,7 +504,6 @@ int search_g(auto in)
             }
         }
     }
-//    std::cout << mpp.size() << "\n";
     return -1;
 }
 
