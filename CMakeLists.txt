@@ -11,7 +11,7 @@ FetchContent_Declare( ctre
     GIT_TAG origin/main
     )
 FetchContent_MakeAvailable(ctre)
-find_package(Boost 1.77 REQUIRED)
+find_package(Boost 1.78 REQUIRED)
 
 add_subdirectory(aoc0)
 add_subdirectory(aoc1)

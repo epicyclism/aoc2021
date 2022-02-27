@@ -23,6 +23,9 @@ int64_t simulate_fish(std::vector<int> v, int nd)
     std::array<int64_t, 9> cnts {0};
     for (auto i : v)
         ++cnts[i];
+    for (auto n : cnts)
+        std::cout << n << ", ";
+    std::cout << "\n";
     for (int g = 0; g < nd; ++g)
     {
         std::rotate(cnts.begin(), cnts.begin() + 1, cnts.end());
