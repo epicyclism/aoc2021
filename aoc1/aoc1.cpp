@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iterator>
-#include <string>
+//#include <string>
 #include <vector>
-#include <algorithm>
+//#include <algorithm>
 #include <numeric>
 
 #if 0

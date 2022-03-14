@@ -44,57 +44,13 @@ constexpr matrix2<9, 9, int64_t> act
 	1, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-constexpr inline bool odd(int n)
+template<typename T> constexpr T power(T const& t, int n)
 {
-	return n & 1;
-}
-
-constexpr inline int half(int n)
-{
-	return n / 2;
-}
-
-
-template <typename A> constexpr A power_accumulate_semigroup(A r, A a, int n)
-{
-	// precondition(n >= 0);
-	if (n == 0) return r;
-	while (true) {
-		if (odd(n)) {
-			r = r * a;
-			if (n == 1) return r;
-		}
-		n = half(n);
-		a = a * a;
-	}
-}
-
-template <typename A> constexpr A power_semigroup(A a, int n)
-{
-	// precondition(n > 0);
-	while (!odd(n)) 
-	{
-		a = a * a;
-		n = half(n);
-	}
-	if (n == 1) return a;
-	return power_accumulate_semigroup(a, a * a, half(n - 1));
-}
-
-template <typename A> constexpr A power_monoid(A a, int n)
-{
-	// precondition(n >= 0);
-//	if (n == 0) return A(1);
-	return power_semigroup(a, n);
-}
-
-template<int N, typename M> constexpr auto powN(M const& m)
-{
-	static_assert(N > 0, "powN not defined for exponents less than 0");
-	M rv{ m };
-	for (int n = 0; n < N - 1; ++n)
-		rv = rv * m;
-	return rv;
+	if (n == 1)
+		return t;
+	if (n & 1)
+		return power(t * t, n / 2) * t;
+	return power(t * t, n / 2);
 }
 
 auto get_input()
@@ -108,8 +64,7 @@ auto get_input()
 
 template<int N> int64_t simulate_fish(matrix2<1, 9> v)
 {
-//	v = powN<N>(act) * v;
-	v = power_monoid(act, N) * v;
+	v = power(act, N) * v;
 	return std::accumulate(v.begin(), v.end(), 0ll);
 }
 
