@@ -72,7 +72,7 @@ graph_t build_graph(int stride, std::vector<char> const& data)
         if( v > stride)
             add_edge(v, v - stride, data[v - stride], g);
         // down
-        if( v <= data.size() - stride)
+        if( v < data.size() - stride)
             add_edge(v, v + stride, data[v + stride], g);
     }
     return g;
@@ -82,7 +82,7 @@ int pt1(int stride, std::vector<char> const& data)
 {
     auto g { build_graph(stride, data)};
     auto d = dijkstra(0, g);
-    return d[g.size() - 2];
+    return d[g.size() - 1];
 }
 
 void print(int stride, std::vector<char> const& v)
@@ -121,7 +121,7 @@ int pt2(int stride, std::vector<char> const& data)
 {
     auto g { build_graph5(stride, data)};
     auto d = dijkstra(0, g);
-    return d[g.size() - 2];
+    return d[g.size() - 1];
 }
 
 int main()
