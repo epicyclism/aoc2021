@@ -4,7 +4,6 @@
 #include <vector>
 #include <queue>
 #include <map>
-#include <cstdint>
 #include <algorithm>
 #include <chrono>
 
@@ -25,17 +24,17 @@ vertex_id_t vertex_id_from_name(std::string_view nm)
 	return (*v.first).second;
 }
 
-void add_edge(vertex_id_t from, vertex_id_t to, bool reenter, graph_t& g)
+template <typename... ARGS> void add_edge(graph_t& g, vertex_id_t from, vertex_id_t to, ARGS... args )
 {
-	if (g.size() < from + 1)
-		g.resize(from + 1);
-	g[from].emplace_back(to, reenter);
+    if (g.size() < from + 1)
+        g.resize(from + 1);
+    g[from].emplace_back(to, args...);
 }
 
-void add_edge_undirected(vertex_id_t from, bool reenter_from, vertex_id_t to, bool reenter_to, graph_t& g)
+void add_edge_undirected(graph_t& g, vertex_id_t from, bool reenter_from, vertex_id_t to, bool reenter_to)
 {
-	add_edge(from, to, reenter_to, g);
-	add_edge(to, from, reenter_from, g);
+	add_edge(g, from, to, reenter_to);
+	add_edge(g, to, from, reenter_from);
 }
 
 graph_t build_graph()
@@ -47,7 +46,7 @@ graph_t build_graph()
 		auto sep = ln.find('-');
 		std::string_view from{ ln.begin(), ln.begin() + sep };
 		std::string_view to{ ln.begin() + sep + 1, ln.end() };
-		add_edge_undirected(vertex_id_from_name(from), all_upper(from), vertex_id_from_name(to), all_upper(to), g);
+		add_edge_undirected(g, vertex_id_from_name(from), all_upper(from), vertex_id_from_name(to), all_upper(to));
 	}
 	return g;
 }
@@ -56,17 +55,14 @@ int pt1(graph_t const& g)
 {
     auto src = vertex_id_from_name("start");
     auto dest = vertex_id_from_name("end");
-    std::queue<std::vector<vertex_id_t>> q; // first entry is this vertex, subsequent are vertices seen on this path that we can only enter once
+    std::queue<std::vector<vertex_id_t>> q;
     q.push(std::vector<vertex_id_t>{src});
     int cnt{ 0 };
-
     while (!q.empty())
     {
         auto u = q.front(); q.pop();
         if (u.back() == dest)
-        {
             ++cnt;
-        }
         else
         {
             for (auto& v : g[u.back()])
@@ -88,7 +84,7 @@ int pt2(graph_t const& g)
 {
     auto src = vertex_id_from_name("start");
     auto dest = vertex_id_from_name("end");
-    std::queue<std::vector<vertex_id_t>> q; // first entry is this vertex, subsequent are vertices seen on this path
+    std::queue<std::vector<vertex_id_t>> q;
     q.push(std::vector<vertex_id_t>{src});
     int cnt{ 0 };
 
@@ -137,13 +133,13 @@ int pt2(graph_t const& g)
 
 int main()
 {
-	auto start = std::chrono::system_clock::now();
 
 	auto g = build_graph();
     std::cout << "pt1 = " << pt1(g) << "\n";
+	auto start = std::chrono::system_clock::now();
     std::cout << "pt2 = " << pt2(g) << "\n";
-
 	auto end = std::chrono::system_clock::now();
+
 
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
