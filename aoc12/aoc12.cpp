@@ -31,7 +31,7 @@ template <typename... ARGS> void add_edge(graph_t& g, vertex_id_t from, vertex_i
     g[from].emplace_back(to, args...);
 }
 
-void add_edge_undirected(graph_t& g, vertex_id_t from, bool reenter_from, vertex_id_t to, bool reenter_to)
+void add_edge_undirected(graph_t& g, vertex_id_t from, vertex_id_t to, bool reenter_from, bool reenter_to)
 {
 	add_edge(g, from, to, reenter_to);
 	add_edge(g, to, from, reenter_from);
@@ -46,7 +46,7 @@ graph_t build_graph()
 		auto sep = ln.find('-');
 		std::string_view from{ ln.begin(), ln.begin() + sep };
 		std::string_view to{ ln.begin() + sep + 1, ln.end() };
-		add_edge_undirected(g, vertex_id_from_name(from), all_upper(from), vertex_id_from_name(to), all_upper(to));
+		add_edge_undirected(g, vertex_id_from_name(from), vertex_id_from_name(to), all_upper(from), all_upper(to));
 	}
 	return g;
 }
